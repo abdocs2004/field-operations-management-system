@@ -1,5 +1,7 @@
 # Field Operations Management & Verification Platform
 
+![توثيق إدارة العمليات الميدانية](./توثيق-إدارة-العمليات-الميدانية.png)
+
 An Arabic-first, RTL platform for recording field operations, issuing QR-verified electronic receipts, and monitoring current operational data through a dashboard with a public no-login verification portal.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.13-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -82,12 +84,12 @@ Replace the placeholders below with repository images or hosted screenshots.
 
 | Screen | Screenshot |
 |---|---|
-| Homepage | ![Homepage](docs/screenshots/homepage.png) |
-| Login | ![Login](docs/screenshots/login.png) |
-| Field entry form | ![Field entry form](docs/screenshots/field-entry.png) |
-| Receipt with QR | ![Receipt with QR](docs/screenshots/receipt-qr.png) |
-| Dashboard | ![Dashboard](docs/screenshots/dashboard.png) |
-| Verification portal | ![Verification portal](docs/screenshots/verification.png) |
+| Homepage | ![Homepage](./home-page.png) |
+| Login | ![Login](./login-page.png) |
+| Field entry form | ![Field entry form](./Field-entry-form.png) |
+| Receipt with QR | ![Receipt with QR](./Receipt-with-QR.png) |
+| Dashboard | ![Dashboard](./dashboard-page.png) |
+| Verification portal | ![Verification portal](./verification-portal.png) |
 
 ## Getting Started
 
@@ -224,8 +226,4 @@ Run migrations during the release/deploy step with `npm run prisma:deploy`, then
 - Zod schemas validate request input, and the centralized error handler maps validation and known Prisma errors without exposing stack traces or raw SQL details.
 - Verification responses are built from a public-safe receipt payload, while every verification attempt is recorded with receipt number, result, IP address, and user agent when available.
 
-## License / Contact
 
-License: not specified in the repository.
-
-Contact: add the project owner or maintainer contact here.

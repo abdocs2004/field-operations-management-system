@@ -16,11 +16,6 @@ export default function LoginPage() {
         <div className="rounded-xl2 border border-slate-200 bg-white p-6 shadow-card sm:p-8">
           <LoginForm />
         </div>
-        <div className="mt-5 rounded-xl2 border border-slate-200 bg-white/60 p-4 text-xs text-slate-400">
-          <p className="mb-1 font-medium text-slate-500">حسابات تجريبية:</p>
-          <p className="ltr-nums">admin@example.com — supervisor@example.com — field@example.com</p>
-          <p className="ltr-nums">كلمة المرور: Demo@12345</p>
-        </div>
         <Link
           href="/"
           className="mt-6 flex items-center justify-center gap-1.5 text-sm text-slate-500 hover:text-navy-700"
