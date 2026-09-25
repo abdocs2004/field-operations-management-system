@@ -1,0 +1,163 @@
+// ============================================================================
+// Field Operations Management & Verification Platform — Prisma Schema
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  FIELD_USER
+}
+
+enum OperationStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+// ----------------------------------------------------------------------------
+// Users
+// ----------------------------------------------------------------------------
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(FIELD_USER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  operations       Operation[]      @relation("OperationCreatedBy")
+  updatedOperations Operation[]     @relation("OperationUpdatedBy")
+  auditLogs        AuditLog[]
+
+  @@index([role])
+  @@map("users")
+}
+
+// ----------------------------------------------------------------------------
+// Services (dropdown source for field entry — never hardcoded in frontend)
+// ----------------------------------------------------------------------------
+model Service {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  operations Operation[]
+
+  @@index([isActive])
+  @@map("services")
+}
+
+// ----------------------------------------------------------------------------
+// Operations (the core transaction / receipt-generating record)
+// ----------------------------------------------------------------------------
+model Operation {
+  id              String          @id @default(uuid())
+  receiptNumber   String          @unique
+  customerName    String
+  serviceId       String
+  service         Service         @relation(fields: [serviceId], references: [id])
+  quantity        Decimal         @db.Decimal(14, 3)
+  unit            String          @default("كجم")
+  amount          Decimal         @db.Decimal(14, 2)
+  beneficiaryName String
+  status          OperationStatus @default(COMPLETED)
+
+  createdById String
+  createdBy   User   @relation("OperationCreatedBy", fields: [createdById], references: [id])
+
+  updatedById String?
+  updatedBy   User?   @relation("OperationUpdatedBy", fields: [updatedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  verificationLogs VerificationLog[]
+  auditLogs        AuditLog[]
+
+  @@index([status])
+  @@index([serviceId])
+  @@index([createdById])
+  @@index([createdAt])
+  @@index([customerName])
+  @@map("operations")
+}
+
+// ----------------------------------------------------------------------------
+// Announcements (public news bar, admin-managed)
+// ----------------------------------------------------------------------------
+model Announcement {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("announcements")
+}
+
+// ----------------------------------------------------------------------------
+// Verification logs (every public lookup attempt, valid or not)
+// ----------------------------------------------------------------------------
+model VerificationLog {
+  id            String   @id @default(uuid())
+  receiptNumber String
+  operationId   String?
+  operation     Operation? @relation(fields: [operationId], references: [id])
+  found         Boolean
+  ipAddress     String?
+  userAgent     String?
+  verifiedAt    DateTime @default(now())
+
+  @@index([receiptNumber])
+  @@index([verifiedAt])
+  @@map("verification_logs")
+}
+
+// ----------------------------------------------------------------------------
+// Audit logs (who did what, when)
+// ----------------------------------------------------------------------------
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  action      String // e.g. "OPERATION_CREATED", "OPERATION_UPDATED", "USER_ROLE_CHANGED"
+  entityType  String // e.g. "Operation", "User", "Service"
+  entityId    String?
+  operationId String?
+  operation   Operation? @relation(fields: [operationId], references: [id])
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ----------------------------------------------------------------------------
+// Concurrency-safe receipt numbering.
+// A single-row counter table updated inside a serializable-safe transaction
+// via `SELECT ... FOR UPDATE`, scoped per calendar year (RCP-2026-000001).
+// This avoids the classic "count + 1" race condition under concurrent writes.
+// ----------------------------------------------------------------------------
+model ReceiptSequence {
+  year        Int    @id
+  lastNumber  Int    @default(0)
+
+  @@map("receipt_sequences")
+}

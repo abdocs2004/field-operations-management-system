@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+frontend/.next/
+
+# Production builds
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*
+.env.*.local
+!.env.example
+
+# Secrets and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+credentials.json
+secrets.json
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Prisma
+backend/node_modules/.prisma/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
